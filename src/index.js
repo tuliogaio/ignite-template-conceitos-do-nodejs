@@ -30,7 +30,7 @@ app.post('/users', (request, response) => {
   const checkUserExists = users.some((user) => user.username === username);
 
   if(checkUserExists) {
-    return response.status(400).json({error: "User already exists."});
+    return response.status(400).json({ error: "Username already exists." });
   }
   
   const user = {
@@ -78,15 +78,18 @@ app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
     return response.status(404).json({ error: "Todo not found"})
   }
 
-  const newTodo = {
-    ...updatedTodo,
-    title,
-    deadline
-  }
+  // const newTodo = {
+  //   ...updatedTodo,
+  //   title,
+  //   deadline: new Date(deadline)
+  // }
 
-  user.todos.map((todo) => todo.id === id ? newTodo : todo);
+  // user.todos.map((todo) => todo.id === id ? newTodo : todo);
 
-  return response.status(201).json(newTodo)
+  updatedTodo.title = title;
+  updatedTodo.deadline = new Date(deadline);
+
+  return response.status(201).json(updatedTodo);
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
@@ -99,27 +102,29 @@ app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
     return response.status(404).json({ error: "Todo not found"})
   }
 
-  const newTodo = {
-    ...updatedTodo,
-    done: true
-  }
+  // const newTodo = {
+  //   ...updatedTodo,
+  //   done: true
+  // }
 
-  user.todos.map((todo) => todo.id === id ? newTodo : todo);
+  // user.todos.map((todo) => todo.id === id ? newTodo : todo);
 
-  return response.status(201).json(newTodo);
+  updatedTodo.done = true;
+
+  return response.status(201).json(updatedTodo);
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
   const { user } = request;
   const { id } = request.params;
 
-  const deleteTodo = user.todos.find((todo) => todo.id === id);
+  const deleteTodoIndex = user.todos.findIndex((todo) => todo.id === id);
 
-  if(!deleteTodo) {
+  if(deleteTodoIndex === -1) {
     return response.status(404).json({ error: "Todo not found"})
   }
 
-  user.todos.splice(deleteTodo, 1);
+  user.todos.splice(deleteTodoIndex, 1);
 
   return response.status(204).send();
 
